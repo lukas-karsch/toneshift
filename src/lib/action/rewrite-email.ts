@@ -17,7 +17,7 @@ export const rewriteEmail = actionClient
             const msg = await anthropic.messages.create({
                 model: "claude-3-5-sonnet-20240620",
                 max_tokens: 1000,
-                temperature: 0,
+                temperature: 0.2,
                 system: "You are a professional email rewriter.",
                 messages: [
                     {
@@ -37,7 +37,7 @@ export const rewriteEmail = actionClient
                 .join("\n")
                 .match(regex)?.[1];
             if (!text) {
-                console.error("LLM returned incorrectly formatted data");
+                console.error("API returned incorrectly formatted data");
                 console.log(msg);
                 return;
             }
