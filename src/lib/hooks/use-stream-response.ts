@@ -17,18 +17,10 @@ export default function useStreamingResponse() {
         while (true) {
             const {value, done} = await reader.read();
             if (done) break;
-            const decoded = decoder.decode(value, {stream: true}).split("\n");
-            console.log(decoded);
-            const objects = decoded
-                .filter(s => s.trim().length !== 0)
-                .map(s => JSON.parse(s));
-            for (const parsed of objects) {
-                if (parsed.type === "content_block_delta") {
-                    setValue(current => current + parsed["delta"]["text"]);
-                }
-            }
+            const text = decoder.decode(value, {stream: true});
+            setValue(current => current + text);
         }
-    }
+    };
 
     return {startStreaming, value, error};
 }

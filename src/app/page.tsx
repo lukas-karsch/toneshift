@@ -1,19 +1,19 @@
 "use client";
 
-import {rewriteEmail} from "@/lib/action/rewrite-email";
-import {useAction} from "next-safe-action/hooks";
 import {useState} from "react";
+import useStreamingResponse from "@/lib/hooks/use-stream-response";
 
 export default function Home() {
-    const {execute, result} = useAction(rewriteEmail);
     const [email, setEmail] = useState<string>("");
+    const {value: rewrittenEmail, startStreaming, error} = useStreamingResponse();
 
     return (
         <main className="p-8">
             <h1 className="text-2xl">let it all out 💕</h1>
             <div className="container mt-8">
                 <form className="flex flex-col gap-4" action={async () => {
-                    execute({email})
+                    const params = new URLSearchParams({email});
+                    const stream = await startStreaming("/api/rewrite?" + params);
                 }}>
                     <textarea name="email" placeholder="don't hold back. how are you feeling?"
                               spellCheck={false}
@@ -24,15 +24,10 @@ export default function Home() {
                     <button className="py-2 px-4 bg-blue-500 rounded-full text-white w-fit">i&apos;m done</button>
                 </form>
             </div>
-            {result.data &&
-                result.data.success &&
-                <div>
-                    {result.data.success}
-                </div>
+            <div>{rewrittenEmail}</div>
+            {error &&
+                <div>sorry, we couldn&apos;t generate your email.</div>
             }
-            {result.data &&
-                result.data.error &&
-                <div>sorry, we couldn&apos;t generate your email.</div>}
         </main>
     );
 }
